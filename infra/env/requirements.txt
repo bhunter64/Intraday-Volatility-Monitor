@@ -1,0 +1,11 @@
+```text
+numpy
+pandas
+scipy
+scikit-learn
+pyyaml
+matplotlib
+pytest
+pytest-cov
+ruff
+mypy
