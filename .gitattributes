@@ -1,0 +1,4 @@
+# Route large binaries through Git LFS (optional for now)
+*.parquet filter=lfs diff=lfs merge=lfs -text
+*.feather filter=lfs diff=lfs merge=lfs -text
+paper/figs/* filter=lfs diff=lfs merge=lfs -text
