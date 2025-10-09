@@ -2,7 +2,7 @@
 *                                  @bhunter64
 
 # Core package
-/src/ivtool/                       @saanvi @marco
+/src/ivtool/                       @saanvi @marco @matthew
 
 # Pipeline
 /src/ivtool/pipeline/              @hugh
@@ -11,10 +11,10 @@
 /tests/                            @saanvi @marco @matthew
 
 # Math notes
-/research/                         @matthew
+/research/                         @matthew @gavin
 
 # Paper
 /paper/                            @gavin
 
 # CI & Infra
-/infra/                            @bhunter64
+/infra/                            @bhunter64 @saanvi @marco
