@@ -1,0 +1,20 @@
+# Default owners
+*                                  @bhunter64
+
+# Core package
+/src/ivtool/                       @saanvi @marco
+
+# Pipeline
+/src/ivtool/pipeline/              @hugh
+
+# Tests
+/tests/                            @saanvi @marco @matthew
+
+# Math notes
+/research/                         @matthew
+
+# Paper
+/paper/                            @gavin
+
+# CI & Infra
+/infra/                            @bhunter64
