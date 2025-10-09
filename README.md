@@ -8,3 +8,10 @@ effectiveness, it is implemented here with a tiliting portfolio strategy.
 
 To improve the statistical and mathematical rigor of the project, a research paper is also written in tandem with the tool, to demonstrate
 acurate findings and a passion for mathematical research amongst the team.
+
+## Quickstart (local)
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r infra/env/requirements.txt
+pip install -e .
+python experiments/run.py --config experiments/configs/cusum_baseline.yaml
