@@ -5,12 +5,19 @@ from dotenv import load_dotenv
 import psycopg2
 from typing import Optional
 from datetime import datetime
+
+#this file fetches SPY data from Alpha Vantage, cleans it, and inserts it into a PostgreSQL database with logging
+#fetch_spy_datadb.py is used to get the data from the db, not this file
+
 load_dotenv()
 
 api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
 database_url = os.getenv("DATABASE_URL")
 
 LOG_FILE = "data_log.csv"
+
+
+
 
 if os.path.exists(LOG_FILE):
     data_log = pd.read_csv(LOG_FILE)
