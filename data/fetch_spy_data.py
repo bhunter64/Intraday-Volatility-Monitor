@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 import psycopg2
 from typing import Optional
 from datetime import datetime
-
 load_dotenv()
 
 api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
@@ -61,12 +60,6 @@ def fetch_spy_data(symbol: str, api_key: str, time_range: str = 'month', db_url:
         
         outputsize = 'compact' if time_range == 'min' else 'full'
         
-        latest_in_db = None
-        if db_url:
-            latest_in_db = get_latest_timestamp_from_db(db_url)
-            if latest_in_db:
-                print(f"Latest timestamp in database: {latest_in_db}")
-        
         url = 'https://www.alphavantage.co/query'
         params = {
             'function': 'TIME_SERIES_INTRADAY',  
@@ -75,7 +68,7 @@ def fetch_spy_data(symbol: str, api_key: str, time_range: str = 'month', db_url:
             'apikey': api_key,
             'outputsize': outputsize,
             'datatype': 'json',
-            'extended_hours': 'false', #only want regular trading hours, saves api costs, fixes timezone issues
+            'extended_hours': 'false',
         }
         
         print(f"Fetching {symbol} data (outputsize={outputsize}, range={time_range}) from Alpha Vantage...")
@@ -91,15 +84,12 @@ def fetch_spy_data(symbol: str, api_key: str, time_range: str = 'month', db_url:
         if 'Note' in data:
             raise Exception(f"API Limit: {data['Note']}")
         
-        #getting what we need from the response
         time_series = data["Time Series (1min)"]
         df = pd.DataFrame.from_dict(time_series, orient="index")
         df.reset_index(inplace=True)
         df.rename(columns={"index": "timestamp"}, inplace=True)
         
-        # Convert to datetime and ensure timezone-naive for consistent comparisons
         df["timestamp"] = pd.to_datetime(df["timestamp"])
-        # Remove timezone info if present to ensure consistency
         if df["timestamp"].dt.tz is not None:
             df["timestamp"] = df["timestamp"].dt.tz_localize(None)
         
@@ -109,7 +99,7 @@ def fetch_spy_data(symbol: str, api_key: str, time_range: str = 'month', db_url:
         
         log_step("API_FETCH", f"Fetched {len(df)} rows from Alpha Vantage", len(df))
         
-        #filter based on time range - use timezone-naive timestamps
+        # Filter based on time range only
         now = pd.Timestamp.now()
         
         if time_range == 'week':
@@ -123,12 +113,6 @@ def fetch_spy_data(symbol: str, api_key: str, time_range: str = 'month', db_url:
         else:
             log_step("FILTER", f"No time filtering applied for range={time_range}", len(df))
         
-        # Deduplicate against database
-        if latest_in_db is not None:
-            before = len(df)
-            df = df[df["timestamp"] > latest_in_db]
-            removed = before - len(df)
-            log_step("DEDUP_DB", f"Removed {removed} duplicate rows already in DB", len(df))
         
         if len(df) == 0:
             log_step("DATA_EMPTY", "No new rows to insert", 0)
@@ -144,6 +128,7 @@ def insert_data_to_db(df: pd.DataFrame, db_url: str, table_name: str = "SPY_Data
     if len(df) == 0:
         print("No data to insert, skipping database operation.")
         return
+    df = df.sort_values('timestamp', ascending=True).copy()   
     print(f"Inserting {len(df)} rows into table {table_name}...")
     try:
         conn = psycopg2.connect(db_url)
