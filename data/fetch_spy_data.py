@@ -18,12 +18,10 @@ if os.path.exists(LOG_FILE):
 else:
     data_log = pd.DataFrame(columns=["Timestamp", "Step", "Description", "Row Count", "Status", "Error Message"])
 
-
-
 #deals with data log
 def log_step(step: str, description: str, row_count: Optional[int] = None, status: str = "OK", error_msg: Optional[str] = ""):
-    """Add a new log entry."""
-    global data_log
+
+    global data_log #make sure to use the global data_log variable to persist logs across function calls
     entry = {
         "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "Step": step,
@@ -46,7 +44,8 @@ def get_latest_timestamp_from_db(db_url: str, table_name: str = "SPY_Data"):
         conn.close()
         log_step("DB_CHECK", f"Checked latest timestamp in {table_name}", status="OK")
         if result:
-            return pd.Timestamp(result, tz="UTC")
+            # Ensure it's a pandas Timestamp without timezone
+            return pd.Timestamp(result).tz_localize(None) if pd.Timestamp(result).tz is not None else pd.Timestamp(result)
         return None
     except Exception as e:
         log_step("DB_CHECK", f"Failed to check timestamp in {table_name}", status="ERROR", error_msg=str(e))
@@ -76,9 +75,7 @@ def fetch_spy_data(symbol: str, api_key: str, time_range: str = 'month', db_url:
             'apikey': api_key,
             'outputsize': outputsize,
             'datatype': 'json',
-            #'adjusted': 'true',         
-            'extended_hours': 'false', #only want regular trading hours, saves api costs
-   
+            'extended_hours': 'false', #only want regular trading hours, saves api costs, fixes timezone issues
         }
         
         print(f"Fetching {symbol} data (outputsize={outputsize}, range={time_range}) from Alpha Vantage...")
@@ -99,24 +96,34 @@ def fetch_spy_data(symbol: str, api_key: str, time_range: str = 'month', db_url:
         df = pd.DataFrame.from_dict(time_series, orient="index")
         df.reset_index(inplace=True)
         df.rename(columns={"index": "timestamp"}, inplace=True)
-        df["timestamp"] = pd.to_datetime(df["timestamp"]).dt.tz_localize("UTC")
+        
+        # Convert to datetime and ensure timezone-naive for consistent comparisons
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+        # Remove timezone info if present to ensure consistency
+        if df["timestamp"].dt.tz is not None:
+            df["timestamp"] = df["timestamp"].dt.tz_localize(None)
+        
         df["symbol"] = symbol
         df["price"] = df["4. close"].astype(float)
         df = df[["timestamp", "symbol", "price"]]
         
         log_step("API_FETCH", f"Fetched {len(df)} rows from Alpha Vantage", len(df))
         
-        #filter based on time range
-        now = pd.Timestamp.now(tz="UTC")
+        #filter based on time range - use timezone-naive timestamps
+        now = pd.Timestamp.now()
+        
         if time_range == 'week':
             cutoff = now - pd.Timedelta(days=7)
             df = df[df["timestamp"] >= cutoff]
+            log_step("FILTER", f"Filtered data for range=week (cutoff: {cutoff})", len(df))
         elif time_range == 'month':
             cutoff = now - pd.Timedelta(days=30)
             df = df[df["timestamp"] >= cutoff]
+            log_step("FILTER", f"Filtered data for range=month (cutoff: {cutoff})", len(df))
+        else:
+            log_step("FILTER", f"No time filtering applied for range={time_range}", len(df))
         
-        log_step("FILTER", f"Filtered data for range={time_range}", len(df))
-        
+        # Deduplicate against database
         if latest_in_db is not None:
             before = len(df)
             df = df[df["timestamp"] > latest_in_db]
@@ -144,7 +151,7 @@ def insert_data_to_db(df: pd.DataFrame, db_url: str, table_name: str = "SPY_Data
         cur.executemany(
             f"""
             INSERT INTO "{table_name}" (timestamp, symbol, price)
-            VALUES (%s, %s, %s)
+            VALUES (%s AT TIME ZONE 'America/Toronto', %s, %s)
             ON CONFLICT (timestamp, symbol) DO NOTHING
             """,
             df[["timestamp", "symbol", "price"]].values.tolist()
