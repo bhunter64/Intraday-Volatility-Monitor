@@ -1,0 +1,13 @@
+Timestamp,Step,Description,Row Count,Status,Error Message
+2025-11-08 14:41:54,DB_CHECK,Checked latest timestamp in SPY_Data,,OK,
+2025-11-08 14:41:54,API_FETCH,Fetched 8580 rows from Alpha Vantage,8580.0,OK,
+2025-11-08 14:41:54,FILTER,No time filtering applied for range=max,8580.0,OK,
+2025-11-08 14:46:20,DB_INSERT,Inserted 8580 new rows into SPY_Data,8580.0,OK,
+2025-11-08 14:46:20,COMPLETE,Process completed successfully for SPY,8580.0,OK,
+2025-11-08 14:46:20,PROCESS_END,Data fetch and insert process ended,,OK,
+2025-11-08 14:53:13,DB_CHECK,Checked latest timestamp in SPY_Data,,OK,
+2025-11-08 14:53:14,API_FETCH,Fetched 8580 rows from Alpha Vantage,8580,OK,
+2025-11-08 14:53:14,FILTER,No time filtering applied for range=max,8580,OK,
+2025-11-08 14:57:25,DB_INSERT,Inserted 8580 new rows into SPY_Data,8580,OK,
+2025-11-08 14:57:25,COMPLETE,Process completed successfully for SPY,8580,OK,
+2025-11-08 14:57:25,PROCESS_END,Data fetch and insert process ended,,OK,

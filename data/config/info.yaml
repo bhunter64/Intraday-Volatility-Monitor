@@ -1,0 +1,15 @@
+data:
+  provider: "alpha_vantage"       
+  symbol: "SPY"                   
+  interval: "1min"                
+  function: "TIME_SERIES_INTRADAY" 
+  outputsize: "full"             
+
+storage:
+  type: "postgres"               
+  table: "SPY_Data"             
+  uri: ${DATABASE_URL}           
+
+samples:
+  enabled: true                  
+  path: "data/samples/"           
