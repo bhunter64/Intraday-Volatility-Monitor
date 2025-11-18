@@ -21,3 +21,6 @@ data/raw/
 .DS_Store
 .vscode/
 .idea/
+
+venv/
+SPY_Datafull.csv
