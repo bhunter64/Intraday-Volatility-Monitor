@@ -68,6 +68,8 @@ def fetch_from_databento_and_clean(client, symbol="SPY", days_back=7, start_date
     df = df.rename(columns={"close": "price"})
     df["time"] = df["time"].dt.strftime("%Y-%m-%d %H:%M:%S %Z")
     df = df[["time", "symbol", "price"]]
+    df = df.sort_values("time", ascending=True).reset_index(drop=True)
+
     logger.info(f"Cleaned data to {len(df)} rows after filtering trading hours.")
 
     return df
