@@ -9,3 +9,6 @@ pytest
 pytest-cov
 ruff
 mypy
+psycopg2-binary
+
+
