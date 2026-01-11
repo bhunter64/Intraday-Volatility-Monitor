@@ -33,7 +33,11 @@ def fetch_from_databento_and_clean(client, symbol="SPY", days_back=7, start_date
         start_utc = today_utc - timedelta(days=days_back)
 
         # Set end to midnight today to avoid requesting future data
-        end_utc = today_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_utc = (
+            today_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+            - timedelta(days=1)
+        )
+
         start = start_utc.isoformat()
         end = end_utc.isoformat()
 
