@@ -32,10 +32,11 @@ def fetch_from_databento_and_clean(client, symbol="SPY", days_back=7, start_date
         today_utc = datetime.now(timezone.utc)
         start_utc = today_utc - timedelta(days=days_back)
 
-        # Set end to midnight today to avoid requesting future data
+        # Set end to midnight today to avoid requesting future data, we set to 2 to get fridays data. 
+        #assume day is sunday, for sat set days=1
         end_utc = (
             today_utc.replace(hour=0, minute=0, second=0, microsecond=0)
-            - timedelta(days=1)
+            - timedelta(days=2)
         )
 
         start = start_utc.isoformat()
