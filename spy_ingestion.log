@@ -28,3 +28,11 @@
 2026-01-18 21:22:03,914 | INFO | Inserting 1955 rows into SPY_DATA_V2
 2026-01-18 21:22:04,473 | INFO | Database insert committed successfully
 2026-01-18 21:22:04,477 | INFO | SPY ingestion job completed
+2026-01-25 13:48:16,068 | INFO | Initialized Historical(gateway=https://hist.databento.com)
+2026-01-25 13:48:16,068 | INFO | Starting SPY ingestion job
+2026-01-25 13:48:16,068 | INFO | Date range: 2026-01-18T18:48:16.068644+00:00 → 2026-01-23T00:00:00+00:00
+2026-01-25 13:48:17,996 | INFO | Fetched 2388 raw rows
+2026-01-25 13:48:18,034 | INFO | Cleaned data to 1173 rows after filtering trading hours.
+2026-01-25 13:48:18,034 | INFO | Inserting 1173 rows into SPY_DATA_V2
+2026-01-25 13:48:18,844 | INFO | Database insert committed successfully
+2026-01-25 13:48:18,845 | INFO | SPY ingestion job completed
