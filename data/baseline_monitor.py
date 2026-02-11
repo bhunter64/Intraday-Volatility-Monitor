@@ -82,7 +82,7 @@ def plot_daily_volatility(target_date, data_df, alarm_threshold):
 
     #plot price on ax1
     ax1.plot(day_df['timestamp'], day_df['price'], color='blue', label='price')
-    ax1.scatter(day_df['timestamp'], day_df['alarm_point'], color='red', marker='*', s=100, label='Alarm Flag')
+    ax1.scatter(day_df['timestamp'], day_df['alarm_point'], color='red', marker='.', s=100, label='Alarm Flag')
 
     #plot rolling std on ax2
     ax2.plot(day_df['timestamp'], day_df['rolling_std'], color='green', label='30min Rolling Std')
