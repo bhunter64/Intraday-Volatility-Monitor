@@ -20,7 +20,7 @@ class BOCPE:
     def __init__(
         self,
         hazard: float = 1.0 / 250.0,
-        threshold: float = 0.5,
+        threshold: float = 0.2,
         prior_mean: float = 0.0,
         prior_precision: float = 1.0,
         obs_var: float = 1.0,
@@ -131,7 +131,7 @@ class BOCPE:
 
 
 def run_bocpe(returns, hazard=1.0/250.0, threshold=0.5, obs_var=1.0):
-    print("Running BOCPE on returns...")
+    #print("Running BOCPE on returns...")
     detector = BOCPE(hazard=hazard, threshold=threshold, obs_var=obs_var)
     alarms = []
     for x in returns:
@@ -139,7 +139,7 @@ def run_bocpe(returns, hazard=1.0/250.0, threshold=0.5, obs_var=1.0):
     return pd.Series(alarms, index=returns.index)
 
 
-def main_bocpe_run(df: pd.DataFrame, hazard: float = 1.0/250.0, threshold: float = 0.5, obs_var: float = 1.0) -> pd.DataFrame:
+def main_bocpe_run(df: pd.DataFrame, hazard: float = 1.0/250.0, threshold: float = 0.2, obs_var: float = 1.0) -> pd.DataFrame:
     """
     Main entry point. Takes a df with 'timestamp' and 'price' columns.
     Returns a dataframe of flagged timestamps where change points were detected.
@@ -158,5 +158,5 @@ def main_bocpe_run(df: pd.DataFrame, hazard: float = 1.0/250.0, threshold: float
         "timestamp": timestamps[alarms],
         "alarm": True
     }).reset_index(drop=True)
-    print("BOCPE run complete. Number of change points detected:", len(flagged))
+    #print("BOCPE run complete. Number of change points detected:", len(flagged))
     return flagged

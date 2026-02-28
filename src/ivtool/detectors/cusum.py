@@ -58,6 +58,6 @@ def main_cusum_run(df: pd.DataFrame, k: float = 0.00005, h: float = 0.0023) -> p
         "alarm": True
     }).reset_index(drop=True)
 
-    print("CUSUM run complete. Number of change points detected:", len(flagged))
+    #print("CUSUM run complete. Number of change points detected:", len(flagged))
 
     return flagged

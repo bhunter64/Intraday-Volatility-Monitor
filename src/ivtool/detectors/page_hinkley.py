@@ -79,8 +79,9 @@ def run_page_hinkley(df: pd.DataFrame):
         "timestamp": detector.low_list,
         "alarm": "low"
     }).reset_index(drop=True)
-    print("Page-Hinkley run complete. Number of high volatility regimes detected:", len(flagged_high))
-    print("Page-Hinkley run complete. Number of low volatility regimes detected:", len(flagged_low))
+    #print("Page-Hinkley run complete. Number of high volatility regimes detected:", len(flagged_high))
     return flagged_high, flagged_low
+
+
 
 
