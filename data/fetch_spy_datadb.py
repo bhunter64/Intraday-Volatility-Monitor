@@ -13,7 +13,7 @@ try:
     #full csv with all data
 
     #top 100 rows only, modify as needed
-    query = f'SELECT * FROM "{table_name}" ORDER BY time DESC LIMIT 100;'
+    query = f'SELECT * FROM "{table_name}" ORDER BY time DESC;'
 
  
     df = pd.read_sql(query, conn)
