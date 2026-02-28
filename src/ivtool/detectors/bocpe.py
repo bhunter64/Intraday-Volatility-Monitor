@@ -1,23 +1,26 @@
-from __future__ import annotations # from web, should be including in all of our detectors going forward
+from __future__ import annotations
 
 from dataclasses import dataclass
 from math import exp, pi, sqrt
 from typing import Dict, List, Optional
+import numpy as np
+import pandas as pd
 
 
-@dataclass # New rype of clas
+@dataclass
 class _PosteriorState:
     run_length_probs: List[float]
     mean_posteriors: List[float]
     precision_posteriors: List[float]
 
+
 class BOCPE:
-    """Bayesian Online Change Point Estimation (Gaussian mean-shift model)."""
+    """Bayesian Online Change Point Estimation."""
 
     def __init__(
         self,
         hazard: float = 1.0 / 250.0,
-        threshold: float = 0.5,
+        threshold: float = 0.2,
         prior_mean: float = 0.0,
         prior_precision: float = 1.0,
         obs_var: float = 1.0,
@@ -40,9 +43,8 @@ class BOCPE:
         self.prior_precision = float(prior_precision)
         self.obs_var = float(obs_var)
         self.max_run_length = max_run_length
-
         self.reset()
-    
+
     def reset(self) -> None:
         self.t = 0
         self._state = _PosteriorState(
@@ -120,10 +122,41 @@ class BOCPE:
 
     def state(self) -> Dict[str, float]:
         probs = self._state.run_length_probs
-        map_run_length = self._map_run_length
         return {
             "t": float(self.t),
             "cp_prob": float(self._cp_prob),
-            "map_run_length": float(map_run_length),
-            "posterior_peak_prob": float(probs[map_run_length]),
+            "map_run_length": float(self._map_run_length),
+            "posterior_peak_prob": float(probs[self._map_run_length]),
         }
+
+
+def run_bocpe(returns, hazard=1.0/250.0, threshold=0.5, obs_var=1.0):
+    #print("Running BOCPE on returns...")
+    detector = BOCPE(hazard=hazard, threshold=threshold, obs_var=obs_var)
+    alarms = []
+    for x in returns:
+        alarms.append(detector.update(float(x)))
+    return pd.Series(alarms, index=returns.index)
+
+
+def main_bocpe_run(df: pd.DataFrame, hazard: float = 1.0/250.0, threshold: float = 0.2, obs_var: float = 1.0) -> pd.DataFrame:
+    """
+    Main entry point. Takes a df with 'timestamp' and 'price' columns.
+    Returns a dataframe of flagged timestamps where change points were detected.
+    """
+    print("Running BOCPE change point detection...")
+    df = df.sort_values("time").reset_index(drop=True)
+    prices = df["price"].astype(float)
+
+    returns = np.log(prices / prices.shift(1))
+    returns = returns.dropna().reset_index(drop=True)
+
+    timestamps = df["time"].iloc[1:].reset_index(drop=True)
+    alarms = run_bocpe(returns, hazard=hazard, threshold=threshold, obs_var=obs_var)
+
+    flagged = pd.DataFrame({
+        "timestamp": timestamps[alarms],
+        "alarm": True
+    }).reset_index(drop=True)
+    #print("BOCPE run complete. Number of change points detected:", len(flagged))
+    return flagged
