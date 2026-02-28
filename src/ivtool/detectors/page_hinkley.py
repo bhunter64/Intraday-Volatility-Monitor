@@ -64,6 +64,7 @@ class Page_Hinkley:
         self.max = 0.0
 
     def get_f(self, x_std):
+        # Constants
         sigma = 0.625188
         mu = -8.288934
         f_x = 1 / (x_std * sigma * (pow(2 * math.pi, 1 / 2)))
