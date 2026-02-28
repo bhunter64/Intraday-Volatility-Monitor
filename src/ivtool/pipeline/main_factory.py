@@ -87,6 +87,7 @@ def main():
     high_risk = high_risk_regimes(flagged_cusum, flagged_bocpe, page_hinkley_result)
     #high_risk.to_csv("high_risk.csv", index=False)
     print(high_risk)
+    print("")
     return high_risk
 
 if __name__ == "__main__":
