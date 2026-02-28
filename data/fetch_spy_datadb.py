@@ -7,13 +7,14 @@ load_dotenv()
 database_url = os.getenv("DATABASE_URL2")
 table_name = "SPY_DATA_V2"
  
+ 
 try:
     conn = psycopg2.connect(database_url)
     #query = f'SELECT * FROM "{table_name}" ORDER BY time DESC;' 
     #full csv with all data
 
     #top 100 rows only, modify as needed
-    query = f'SELECT * FROM "{table_name}" ORDER BY time DESC LIMIT 100;'
+    query = f'SELECT * FROM "{table_name}" ORDER BY time ASC;'
 
  
     df = pd.read_sql(query, conn)
