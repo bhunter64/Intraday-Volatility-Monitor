@@ -1,9 +1,0 @@
-seed: 54
-data:
-  source: "data/samples/prices.csv"
-detector:
-  name: "cusum"
-  params:
-    k: 0.1
-    h: 2.0
-output_dir: "paper/figs/cusum_baseline"

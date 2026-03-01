@@ -1,8 +1,7 @@
 # Tests
 
-This directory contains validation and unit tests for the Intraday Volatility Monitor (IVTool) components.
+This directory contains unit tests for the three detector models used in IVTool:
 
-## Structure
-
--   **test_cusum.py:** Validates the functionality of the CUSUM detector, ensuring it correctly identifies upward and downward mean shifts in simulated data
--   Future tests may include Page-Hinkley or BOCPD change detection validation
+- `test_cusum.py` validates CUSUM alarms and reset behavior.
+- `test_page_hinkley.py` validates high/low regime signaling and non-alarm behavior for Page-Hinkley.
+- `test_bocpe.py` validates argument checks and state evolution for BOCPE.
