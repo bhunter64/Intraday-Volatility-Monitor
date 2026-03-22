@@ -3,15 +3,16 @@ from __future__ import annotations
 import math
 import numpy as np
 import pandas as pd
-from typing import Optional
 
 
 class Page_Hinkley:
-
-    def __init__(self):
+    def __init__(self, alarm_threshold: float = 250.0):
+        self.alarm_threshold = float(alarm_threshold)
         self.t = 0
         self.high_list = []
         self.low_list = []
+        self.high_indices = []
+        self.low_indices = []
         self.reset()
 
     def reset(self) -> None:
@@ -21,7 +22,7 @@ class Page_Hinkley:
         self.min = 0.0
         self.max = 0.0
 
-    def get_f(self, x_std):
+    def get_f(self, x_std: float) -> tuple[float, float]:
         sigma = 0.625188
         mu = -8.288934
         f_x = 1 / (x_std * sigma * (pow(2 * math.pi, 1 / 2)))
@@ -31,7 +32,7 @@ class Page_Hinkley:
         f_high = f_x * pow(math.e, f_high_ln / (2 * (pow(sigma, 2))))
         return (f_low, f_high)
 
-    def update(self, x_std: float, timestamp) -> Optional[str]:
+    def update(self, x_std: float, timestamp):
         self.t += 1
         (f0, f1) = self.get_f(x_std)
         big_x = math.log(f1) - math.log(f0)
@@ -42,21 +43,23 @@ class Page_Hinkley:
         self.g_pos = self.s - self.min
         self.g_neg = self.max - self.s
 
-        if self.g_pos > 250:
+        current_index = self.t - 1
+        if self.g_pos > self.alarm_threshold:
             self.high_list.append(timestamp)
+            self.high_indices.append(current_index)
             self.reset()
-            return "high"
+            return True
 
-        elif self.g_neg > 250:
+        if self.g_neg > self.alarm_threshold:
             self.low_list.append(timestamp)
+            self.low_indices.append(current_index)
             self.reset()
-            return "low"
+            return False
 
         return None
 
 
-def run_page_hinkley(df: pd.DataFrame):
-
+def run_page_hinkley(df: pd.DataFrame, alarm_threshold: float = 250.0):
     df = df.sort_values("time").reset_index(drop=True)
     prices = df["price"].astype(float)
 
@@ -66,24 +69,19 @@ def run_page_hinkley(df: pd.DataFrame):
     std_series = returns.rolling(window=30, min_periods=30).std().dropna()
     timestamps = df["time"].iloc[std_series.index]
 
-    detector = Page_Hinkley()
+    detector = Page_Hinkley(alarm_threshold=alarm_threshold)
     for x_std, ts in zip(std_series, timestamps):
         detector.update(float(x_std), ts)
 
     flagged_high = pd.DataFrame({
         "timestamp": detector.high_list,
-        "alarm": "high"
+        "alarm": "high",
     }).reset_index(drop=True)
 
     flagged_low = pd.DataFrame({
         "timestamp": detector.low_list,
-        "alarm": "low"
+        "alarm": "low",
     }).reset_index(drop=True)
     print("Page-Hinkley run complete. Number of high volatility regimes detected:", len(flagged_high))
-    
+
     return flagged_high, flagged_low
-
-
-
-
-
